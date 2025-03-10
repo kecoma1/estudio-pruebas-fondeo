@@ -10,47 +10,6 @@ def get_profit(promedio_ganadora: float, curr_balance: float) -> float:
 
 def get_loss(promedio_perdedora: float, curr_balance: float) -> float:
     return curr_balance*(promedio_perdedora/100)*-1
-
-def get_promedio(curr_balance: float, initial_balance: float) -> float:
-    # Por debajo del 7% de pérdida arriesgamos un 0.3%
-    if curr_balance < initial_balance - 0.07*initial_balance:
-        return 0.3
-    # Por debajo del 5% de pérdida arriesgamos un 0.5%
-    elif curr_balance < initial_balance - 0.05*initial_balance:
-        return 0.5
-    # Por debajo del 4% de pérdida arriesgamos un 0.8%
-    elif curr_balance < initial_balance - 0.04*initial_balance:
-        return 0.8
-    # Por debajo del 2% de pérdida arriesgamos un 1.2%
-    elif curr_balance < initial_balance - 0.02*initial_balance:
-        return 1.2
-    else:
-        return 2
-    
-        
-    
-def simulateWithDynamicRisk(
-    p_ganar: float, 
-    balance_inicial: float,
-    objetivo: float,
-    objetivo_perdida: float
-) -> list:
-    curr_balance = balance_inicial
-    operaciones = [curr_balance]
-    while curr_balance < objetivo and curr_balance > objetivo_perdida:
-        # Operamos y obtenemos el resultado
-        resultado = get_resultado_operacion(p_ganar)
-        
-        # Establecemos el profit en base al resultado
-        profit = get_profit(get_promedio(curr_balance, balance_inicial), curr_balance) if resultado else get_loss(get_promedio(curr_balance, balance_inicial), curr_balance)
-        
-        # Actualizamos el balance
-        curr_balance += profit
-        
-        # Añadimos el nuevo balance
-        operaciones.append(curr_balance)
-        
-    return operaciones
     
 def simulate(
     p_ganar: float, 
@@ -126,29 +85,6 @@ def run_simulations(
     print(f"Porcentaje de pruebas de fondeo pasadas: {(num_success/number_simulations)*100}% ({num_success}/{number_simulations})")
     return results, successes, failures
 
-
-def run_simulations_with_dynamic_risk(
-    number_simulations: int,
-    p_ganar: float, 
-    balance_inicial: float,
-    objetivo: float,
-    objetivo_perdida: float
-):
-    results = []
-    successes = []
-    failures = []
-    num_success = 0
-    for _ in range(number_simulations):
-        result = simulateWithDynamicRisk(p_ganar, balance_inicial, objetivo, objetivo_perdida)
-        results.append(result)
-        num_success += 1 if result[-1] >= objetivo else 0
-        if result[-1] >= objetivo:
-            successes.append(result)
-        else:
-            failures.append(result)
-    print(f"Porcentaje de pruebas de fondeo pasadas: {(num_success/number_simulations)*100}% ({num_success}/{number_simulations})")
-    return results, successes, failures
-
 def get_shortest(results, balance_inicial):
     idx = -1
     for i, r in enumerate(results):
@@ -156,7 +92,6 @@ def get_shortest(results, balance_inicial):
             idx = i
     
     return None if idx == -1 else results[idx]
-
 
 
 def get_longest(results, balance_inicial):
